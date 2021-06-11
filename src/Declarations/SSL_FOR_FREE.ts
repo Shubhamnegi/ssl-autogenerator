@@ -1,0 +1,1 @@
+type CERTIFICATE_STATUS = 'draft' | 'pending_validation' | 'issued' | 'cancelled' | 'expiring_soon' | 'expired'
