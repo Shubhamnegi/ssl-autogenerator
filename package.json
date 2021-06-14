@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/Shubhamnegi/ssl-autogenerator#readme",
   "dependencies": {
+    "ajv": "^8.6.0",
     "axios": "^0.21.1",
     "bunyan": "^1.8.15",
     "chai": "^4.3.4",
