@@ -3,6 +3,10 @@ init(); // To set all env
 import { SslForFree } from '../Vendors/SslForFree'
 import { expect } from 'chai';
 import { CsrRequest } from "../Declarations/CsrRequest";
+import { existsSync, statSync } from 'fs';
+import path from 'path';
+import { tempDir } from "../Constants/SSL_FOR_FREE";
+
 
 describe("Test suite for ssl for free", () => {
     const domain = "haus.delivery";
@@ -55,16 +59,28 @@ describe("Test suite for ssl for free", () => {
 
     // }).timeout(60000);
 
-    it('should be able to validate certificate', async () => {
-        const domain = "trezeokitchens.in";
-        const hash = "b9e6cf88fedd95e2915fd4cfaabb9c52";
+    // it('should be able to validate certificate', async () => {
+    //     const domain = "trezeokitchens.in";
+    //     const hash = "b9e6cf88fedd95e2915fd4cfaabb9c52";
+    //     const sslforfree = new SslForFree(domain)
+    //     const result = await sslforfree.validateCertificate(hash);
+
+    //     console.log(JSON.stringify(result.data));
+
+    //     expect(result.data).to.haveOwnProperty("success");
+    //     expect(result.data).to.haveOwnProperty("error");
+    // }).timeout(60000);
+
+    it('should be able to download certificate', async () => {
+        const domain = "memsaabfood.com";
+        const hash = "872acd21568e90a89b59ca1a3aec94a7";
         const sslforfree = new SslForFree(domain)
-        const result = await sslforfree.validateCertificate(hash);
+        await sslforfree.downloadCertificate(hash);
 
-        console.log(JSON.stringify(result.data));
+        const filepath = path.join(tempDir + "\\" + hash + ".zip");
+    
+        expect(existsSync(filepath)).to.be.eql(true);
 
-        expect(result.data).to.haveOwnProperty("success");
-        expect(result.data).to.haveOwnProperty("error");
     }).timeout(60000);
 
 })

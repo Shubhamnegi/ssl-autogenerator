@@ -1,4 +1,4 @@
-import { SSLFORFREE } from "../Constants/SSL_FOR_FREE"
+import { SSLFORFREE, tempDir } from "../Constants/SSL_FOR_FREE"
 import * as axios from 'axios';
 import { CertificateResult, SearchCertificateResponse, ValidationResponse } from "../Declarations/SearchCertificateResponse";
 import { getcsr } from "../Helpers/csrHelper";
@@ -6,6 +6,8 @@ import { CsrRequest } from "../Declarations/CsrRequest";
 import Logger from "bunyan";
 import { getLogger } from "../Helpers/logger";
 import { formUrlEncoded } from "../Helpers/util";
+import { createWriteStream } from 'fs';
+import path from 'path';
 
 export class SslForFree {
     private apiKey: string;
@@ -113,6 +115,19 @@ export class SslForFree {
         });
 
         return result;
+    }
+
+    async downloadCertificate(id: string) {
+        const ep = `/certificates/${id}/download`
+        await axios.default({
+            method: "GET",
+            params: { access_key: this.apiKey },
+            url: this.baseurl + ep,
+            responseType: "stream"
+        }).then(function (response) {
+            response.data.pipe(createWriteStream(path.join(tempDir + `\\${id}.zip`)));
+        });
+
     }
 }
 
