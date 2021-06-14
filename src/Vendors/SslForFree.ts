@@ -78,10 +78,11 @@ export class SslForFree {
             certificate_csr: getcsr(csrRequest)
         };
 
-        this.logger.debug({ ep, postData })
+        // this.logger.debug({ ep, postData })
 
         const result = await axios.default({
             url: this.baseurl + ep,
+            method: "POST",
             params: { access_key: this.apiKey },
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             data: formUrlEncoded(postData)

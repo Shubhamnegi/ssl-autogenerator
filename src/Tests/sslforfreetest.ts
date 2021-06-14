@@ -47,11 +47,11 @@ describe("Test suite for ssl for free", () => {
         const sslforfree = new SslForFree(domain);
         const result = await sslforfree.createCertificate(request);
         console.log(result.data);
+        
         expect(result).to.be.not.null;
-        expect(result.data).to.haveOwnProperty('id')
-        expect(result.data.id).to.be.eql(certificateId);
-        console.log(result.data.validation.other_methods['shakkr.in'].file_validation_content);
+        expect(result.data).to.haveOwnProperty('id')        
         console.log(result.data.validation.other_methods['shakkr.in'].file_validation_url_http);
+        console.log(result.data.validation.other_methods['shakkr.in'].file_validation_content);
 
     }).timeout(60000);
 })
