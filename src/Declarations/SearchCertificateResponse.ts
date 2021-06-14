@@ -49,3 +49,31 @@ export interface SearchCertificateResponse {
     limit: number;
     results: CertificateResult[];
 }
+
+export interface ErrorDetails {
+    cname_found: number;
+    record_correct: number;
+    target_host: string;
+    target_record: string;
+    actual_record: string;
+}
+
+
+export interface DomainDetail {
+    [key: string]: ErrorDetails;
+}
+
+export interface Details {
+    [key: string]: DomainDetail;
+}
+
+export interface Error {
+    code: number;
+    type: string;
+    details: Details;
+}
+
+export interface ValidationResponse {
+    success: boolean;
+    error: Error;
+}

@@ -47,11 +47,24 @@ describe("Test suite for ssl for free", () => {
     //     const sslforfree = new SslForFree(domain);
     //     const result = await sslforfree.createCertificate(request);
     //     console.log(result.data);
-        
+
     //     expect(result).to.be.not.null;
     //     expect(result.data).to.haveOwnProperty('id')        
     //     console.log(result.data.validation.other_methods['shakkr.in'].file_validation_url_http);
     //     console.log(result.data.validation.other_methods['shakkr.in'].file_validation_content);
 
     // }).timeout(60000);
+
+    it('should be able to validate certificate', async () => {
+        const domain = "trezeokitchens.in";
+        const hash = "b9e6cf88fedd95e2915fd4cfaabb9c52";
+        const sslforfree = new SslForFree(domain)
+        const result = await sslforfree.validateCertificate(hash);
+
+        console.log(JSON.stringify(result.data));
+
+        expect(result.data).to.haveOwnProperty("success");
+        expect(result.data).to.haveOwnProperty("error");
+    }).timeout(60000);
+
 })

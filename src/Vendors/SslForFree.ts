@@ -1,6 +1,6 @@
 import { SSLFORFREE } from "../Constants/SSL_FOR_FREE"
 import * as axios from 'axios';
-import { CertificateResult, SearchCertificateResponse } from "../Declarations/SearchCertificateResponse";
+import { CertificateResult, SearchCertificateResponse, ValidationResponse } from "../Declarations/SearchCertificateResponse";
 import { getcsr } from "../Helpers/csrHelper";
 import { CsrRequest } from "../Declarations/CsrRequest";
 import Logger from "bunyan";
@@ -78,7 +78,31 @@ export class SslForFree {
             certificate_csr: getcsr(csrRequest)
         };
 
-        // this.logger.debug({ ep, postData })
+        this.logger.debug({ ep, postData })
+
+        const result = await axios.default({
+            url: this.baseurl + ep,
+            method: "POST",
+            params: { access_key: this.apiKey },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            data: formUrlEncoded(postData)
+        });
+
+        return result;
+    }
+
+    /**
+     * 
+     * @param id {string} certificate hash
+     * @returns 
+     */
+    async validateCertificate(id: string): Promise<axios.AxiosResponse<ValidationResponse>> {
+        const ep = `/certificates/${id}/challenges`
+        const postData = {
+            validation_method: "HTTP_CSR_HASH"
+        };
+
+        this.logger.debug({ ep, postData })
 
         const result = await axios.default({
             url: this.baseurl + ep,
