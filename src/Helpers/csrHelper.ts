@@ -19,14 +19,13 @@ export const getcsr = (request: CsrRequest) => {
     if (!valid) {
         throw new InvalidCsrRequest(validate.errors)
     }
-    /**
-    // Comenting out for windows machine
     let subject = `/C=${request.country}/ST=${request.state}/L=${request.location}/O=${request.organization}/OU=${request.organizationalUnit}/CN=${request.commonName}`
     const finalCommand = `openssl req -nodes -newkey rsa:2048 -keyout /tmp/${unique}.key -out /tmp/${unique}.csr -subj "${subject}"`
     execSync(finalCommand);
     const buf = readFileSync(`/tmp/${unique}.csr`);
-     */
-    console.log(__dirname + "\\..\\temp\\temp.csr");
-    const buf = readFileSync(__dirname + "\\..\\temp\\temp.csr");
+    
+    // use below comment for windows
+    // console.log(__dirname + "\\..\\temp\\temp.csr");
+    // const buf = readFileSync(__dirname + "\\..\\temp\\temp.csr");
     return buf.toString();
 }
