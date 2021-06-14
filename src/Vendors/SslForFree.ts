@@ -1,6 +1,6 @@
 import { SSLFORFREE, tempDir } from "../Constants/SSL_FOR_FREE"
 import * as axios from 'axios';
-import { CertificateResult, SearchCertificateResponse, ValidationResponse } from "../Declarations/SearchCertificateResponse";
+import { CertificateResult, SearchCertificateResponse, ValidationResponse, ValidationStatus } from "../Declarations/SearchCertificateResponse";
 import { getcsr } from "../Helpers/csrHelper";
 import { CsrRequest } from "../Declarations/CsrRequest";
 import Logger from "bunyan";
@@ -117,6 +117,10 @@ export class SslForFree {
         return result;
     }
 
+    /**
+     * To download zip file
+     * @param id hash of the certificate
+     */
     async downloadCertificate(id: string) {
         const ep = `/certificates/${id}/download`
         await axios.default({
@@ -127,7 +131,22 @@ export class SslForFree {
         }).then(function (response) {
             response.data.pipe(createWriteStream(path.join(tempDir + `\\${id}.zip`)));
         });
+    }
 
+    /**
+     * Get current validation test
+     * @param id 
+     * @returns 
+     */
+    async getValidationStatus(id: string): Promise<axios.AxiosResponse<ValidationStatus>> {
+        const ep = `/certificates/${id}/status`;
+        const result = await axios.default(
+            this.baseurl + ep,
+            {
+                params: { access_key: this.apiKey }
+            }
+        )
+        return result;
     }
 }
 

@@ -71,16 +71,26 @@ describe("Test suite for ssl for free", () => {
     //     expect(result.data).to.haveOwnProperty("error");
     // }).timeout(60000);
 
-    it('should be able to download certificate', async () => {
-        const domain = "memsaabfood.com";
-        const hash = "872acd21568e90a89b59ca1a3aec94a7";
-        const sslforfree = new SslForFree(domain)
-        await sslforfree.downloadCertificate(hash);
+    // it('should be able to download certificate', async () => {
+    //     const domain = "memsaabfood.com";
+    //     const hash = "872acd21568e90a89b59ca1a3aec94a7";
+    //     const sslforfree = new SslForFree(domain)
+    //     await sslforfree.downloadCertificate(hash);
 
-        const filepath = path.join(tempDir + "\\" + hash + ".zip");
+    //     const filepath = path.join(tempDir + "\\" + hash + ".zip");
+
+    //     expect(existsSync(filepath)).to.be.eql(true);
+
+    // // }).timeout(60000);
+
+    // it('should be able to get validation status', async () => {
+    //     const hash = "872acd21568e90a89b59ca1a3aec94a7";
+    //     const result = await sslforfree.getValidationStatus(hash);
     
-        expect(existsSync(filepath)).to.be.eql(true);
-
-    }).timeout(60000);
+    //     expect(result).to.be.not.null;
+    //     expect(result.data).to.be.not.null;
+    //     expect(result.data).to.haveOwnProperty('validation_completed');
+    //     // expect(result.data).to.haveOwnProperty('details');
+    // });
 
 })

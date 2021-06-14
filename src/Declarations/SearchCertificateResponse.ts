@@ -77,3 +77,21 @@ export interface ValidationResponse {
     success: boolean;
     error: Error;
 }
+
+
+
+export interface DomainMethodInfo {
+    method: string;
+    status: string;
+}
+
+export interface ValidationDetails {
+    [key: string]: DomainMethodInfo;
+}
+
+export interface ValidationStatus {
+    validation_completed: number;
+    details: ValidationDetails;
+}
+
+
