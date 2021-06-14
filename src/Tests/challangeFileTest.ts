@@ -2,6 +2,7 @@ import { init } from "./init";
 init(); // To set all env
 
 import { expect } from 'chai';
+import { existsSync, statSync } from 'fs'
 import { challengeFileHelper } from '../Helpers/challengeFileHelper';
 
 describe("Challange file test suite", () => {
@@ -15,6 +16,9 @@ describe("Challange file test suite", () => {
 
     it("Should be able to create a file", () => {
         const rs = challengeFileHelper(link, contents);
-        console.log(rs);
+        const stats = statSync(rs).size;
+
+        expect(existsSync(rs)).to.be.eql(true);
+        expect(stats).to.be.greaterThan(0);
     })
 })

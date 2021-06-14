@@ -11,11 +11,11 @@ import path from 'path';
  */
 export const challengeFileHelper = (link: string, contents: string[]) => {
     const filename = link.substr(link.lastIndexOf("/") + 1);
-    console.log(tempDir + filename);
-    const stream = createWriteStream(path.join(tempDir, "\\" + filename));
+    const fullpath = path.join(tempDir, "\\" + filename);
+    const stream = createWriteStream(fullpath);
     for (let i = 0; i < contents.length; i++) {
         const line = contents[i];
         stream.write((i !== 0 ? "\n" : "") + line);
     }
-    return filename;
+    return fullpath;
 }
