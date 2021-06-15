@@ -1,4 +1,4 @@
-import { AutomatedCertificate as AutomatedCertificateInteface } from "../Declarations/AutomatedCertificate";
+import { AutomatedCertificate as AutomatedCertificateInteface } from "../Declarations/AutomatedCertificateInterface";
 import { CertificateNotFound } from "../Errors/CertificateNotFound";
 import { AutomatedCertificates } from "../Models/AutomatedCertificates";
 

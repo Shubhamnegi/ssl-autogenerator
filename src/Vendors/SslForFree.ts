@@ -1,8 +1,8 @@
 import { SSLFORFREE, tempDir } from "../Constants/SSL_FOR_FREE"
 import * as axios from 'axios';
-import { CertificateResult, SearchCertificateResponse, ValidationResponse, ValidationStatus } from "../Declarations/SearchCertificateResponse";
+import { CertificateResult, SearchCertificateResponse, ValidationResponse, ValidationStatus } from "../Declarations/SearchCertificateResponseInterface";
 import { getcsr } from "../Helpers/csrHelper";
-import { CsrRequest } from "../Declarations/CsrRequest";
+import { CsrRequest } from "../Declarations/CsrRequestInterface";
 import Logger from "bunyan";
 import { getLogger } from "../Helpers/logger";
 import { formUrlEncoded } from "../Helpers/util";

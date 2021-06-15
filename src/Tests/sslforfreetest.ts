@@ -2,7 +2,7 @@ import { init } from "./init";
 init(); // To set all env
 import { SslForFree } from '../Vendors/SslForFree'
 import { expect } from 'chai';
-import { CsrRequest } from "../Declarations/CsrRequest";
+import { CsrRequest } from "../Declarations/CsrRequestInterface";
 import { existsSync, statSync } from 'fs';
 import path from 'path';
 import { tempDir } from "../Constants/SSL_FOR_FREE";

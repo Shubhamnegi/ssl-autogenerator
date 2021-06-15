@@ -1,4 +1,4 @@
-import { CsrRequest } from "../Declarations/CsrRequest";
+import { CsrRequest } from "../Declarations/CsrRequestInterface";
 import Ajv from 'ajv'
 import { schema } from "../Validators/CsrRequestValidator";
 import { InvalidCsrRequest } from "../Errors/InvalidCsrRequest";

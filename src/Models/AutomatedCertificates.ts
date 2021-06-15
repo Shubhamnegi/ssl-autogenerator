@@ -47,6 +47,7 @@ export const AutomatedCertificates = sequelize.define('AutomatedCertificates', {
         values: ['internal', 'external']
     }
 }, {
+    tableName: "automated_certificates",
     createdAt: true,
     updatedAt: true,
     indexes: [{
@@ -63,7 +64,3 @@ export const AutomatedCertificates = sequelize.define('AutomatedCertificates', {
         fields: ['domainName']
     }]
 });
-
-(async () => {
-    await AutomatedCertificates.sync();
-})()
