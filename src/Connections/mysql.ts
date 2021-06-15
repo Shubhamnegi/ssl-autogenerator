@@ -36,7 +36,9 @@ export class Mysql {
      * @returns 
      */
     public static getConnection() {
-        return this.sequelize;
+        if (this.sequelize)
+            return this.sequelize
+        return this.connect();
     }
 
     public static async healthCheck() {
