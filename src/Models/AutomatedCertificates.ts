@@ -6,7 +6,8 @@ const sequelize = Mysql.getConnection();
 export const AutomatedCertificates = sequelize.define('AutomatedCertificates', {
     id: {
         type: DataTypes.INTEGER,
-        primaryKey: true
+        primaryKey: true,
+        autoIncrement: true
     },
     domainName: {
         type: DataTypes.STRING,
@@ -15,6 +16,7 @@ export const AutomatedCertificates = sequelize.define('AutomatedCertificates', {
     certificateHash: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true
     },
     challangeFilePath: {
         type: DataTypes.STRING,
@@ -51,10 +53,6 @@ export const AutomatedCertificates = sequelize.define('AutomatedCertificates', {
     createdAt: true,
     updatedAt: true,
     indexes: [{
-        name: 'certificateHash_idx',
-        using: 'BTREE',
-        fields: ['certificateHash']
-    }, {
         name: 'expiryDate_idx',
         using: 'BTREE',
         fields: ['expiryDate']
@@ -64,3 +62,4 @@ export const AutomatedCertificates = sequelize.define('AutomatedCertificates', {
         fields: ['domainName']
     }]
 });
+// AutomatedCertificates.sync({ force: true });
