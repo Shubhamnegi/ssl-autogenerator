@@ -4,6 +4,7 @@ import { schema } from "../Validators/CsrRequestValidator";
 import { InvalidCsrRequest } from "../Errors/InvalidCsrRequest";
 import { execSync } from 'child_process'
 import { readFileSync } from 'fs';
+import { tempDir } from "../Constants/SSL_FOR_FREE";
 
 /**
  * This will help build a csr request
@@ -20,12 +21,14 @@ export const getcsr = (request: CsrRequest) => {
         throw new InvalidCsrRequest(validate.errors)
     }
     let subject = `/C=${request.country}/ST=${request.state}/L=${request.location}/O=${request.organization}/OU=${request.organizationalUnit}/CN=${request.commonName}`
-    const finalCommand = `openssl req -nodes -newkey rsa:2048 -keyout /tmp/${unique}.key -out /tmp/${unique}.csr -subj "${subject}"`
-    execSync(finalCommand);
-    const buf = readFileSync(`/tmp/${unique}.csr`);
+    let openSSlBinary = "openssl";
+    if (process.env.OPENSSL_BINARY) {
+        openSSlBinary = process.env.OPENSSL_BINARY;
+    }
     
-    // use below comment for windows
-    // console.log(__dirname + "\\..\\temp\\temp.csr");
-    // const buf = readFileSync(__dirname + "\\..\\temp\\temp.csr");
+    const finalCommand = `${openSSlBinary} req -nodes -newkey rsa:2048 -keyout "${tempDir}\\${unique}.key" -out "${tempDir}\\${unique}.csr" -subj "${subject}"`
+    execSync(finalCommand);
+    const buf = readFileSync(`${tempDir}/${unique}.csr`);
+    
     return buf.toString();
 }
