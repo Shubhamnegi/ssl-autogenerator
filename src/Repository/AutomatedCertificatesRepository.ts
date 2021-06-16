@@ -44,17 +44,17 @@ export class AutomatedCertificatesRepository {
     }
 
     /**
-     * To update challange file only
+     * To update challenge file only
      * @param certificateHash 
      * @param filepath 
      * @returns 
      */
-    public static async updateChallangeFile(certificateHash: string, filepath: string) {
+    public static async updatechallengeFile(certificateHash: string, filepath: string) {
         let cert = await AutomatedCertificates.findOne({ where: { certificateHash } });
         if (!cert) {
             throw new CertificateNotFound(certificateHash);
         }
-        cert.set('challangeFilePath', filepath);
+        cert.set('challengeFilePath', filepath);
         await cert.save();
         cert = await cert.reload()
         return cert.toJSON() as AutomatedCertificateInteface;

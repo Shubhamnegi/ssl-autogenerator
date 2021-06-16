@@ -4,12 +4,12 @@ import { HaProxyGroups } from "../Models/HaProxyGroups";
 export class HaProxyGroupsRepository {
     /**
      * To get all posible ips from group
-     * @param groupId 
+     * @param group_type 
      * @returns 
      */
-    public static async getListOfIpsForHaProxyGroup(groupName: string) {
+    public static async getListOfIpsForHaProxyGroup(group_type: string) {
         const result = await HaProxyGroups.findAll({
-            where: { groupName }
+            where: { group_type }
         });
         return result.map(x => x.toJSON()) as HaProxyGroupsInterface[];
     }

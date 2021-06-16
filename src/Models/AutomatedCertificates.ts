@@ -12,13 +12,18 @@ export const AutomatedCertificates = sequelize.define('AutomatedCertificates', {
     domainName: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true
+    },
+    brandId: {
+        type: DataTypes.STRING,
+        allowNull: false,
     },
     certificateHash: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true
     },
-    challangeFilePath: {
+    challengeFilePath: {
         type: DataTypes.STRING,
     },
     certificateKeyPath: {
@@ -56,10 +61,6 @@ export const AutomatedCertificates = sequelize.define('AutomatedCertificates', {
         name: 'expiryDate_idx',
         using: 'BTREE',
         fields: ['expiryDate']
-    }, {
-        name: 'domainName_idx',
-        using: "BTREE",
-        fields: ['domainName']
     }]
 });
 // AutomatedCertificates.sync({ force: true });

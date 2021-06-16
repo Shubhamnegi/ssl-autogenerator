@@ -6,7 +6,6 @@ import { Mysql } from "../Connections/mysql";
 import { AutomatedCertificatesRepository } from "../Repository/AutomatedCertificatesRepository";
 import { CertificateNotFound } from "../Errors/CertificateNotFound";
 import { HaProxyGroupsRepository } from "../Repository/HaProxyGroupsRepository";
-import { iRegexp } from "sequelize/types/lib/operators";
 import { AutomatedCertificate } from "../Declarations/AutomatedCertificateInterface";
 
 describe('Test suite for mysql', () => {
@@ -34,6 +33,7 @@ describe('Test suite for mysql', () => {
 
     it('should be able to insert new certificate', async () => {
         const cert: AutomatedCertificate = {
+            brandId: "0",
             domainName: "test_domain_name",
             certificateHash: "123",
             csrMeta: '{"asdasd":"asdasdasd","asdas":"asdasd","asdas1":"asdasd","asdas2":"asdasd"}',
@@ -47,15 +47,15 @@ describe('Test suite for mysql', () => {
         expect(result.domainName).to.be.eql(cert.domainName);
     })
 
-    it('should be able to update challange file', async () => {
-        const result = await AutomatedCertificatesRepository.updateChallangeFile("123", "https://updaeted.challange.file");
+    it('should be able to update challenge file', async () => {
+        const result = await AutomatedCertificatesRepository.updatechallengeFile("123", "https://updaeted.challenge.file");
 
         expect(result).to.be.not.null;
-        expect(result.challangeFilePath).to.be.eql("https://updaeted.challange.file");
+        expect(result.challengeFilePath).to.be.eql("https://updaeted.challenge.file");
     })
 
 
-    it('should be able to update challange file', async () => {
+    it('should be able to update challenge file', async () => {
         const result = await AutomatedCertificatesRepository.updateCertificatePath(
             "123",
             {

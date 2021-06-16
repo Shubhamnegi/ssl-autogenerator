@@ -6,14 +6,22 @@ import path from 'path';
 import { AwsService } from "../Services/AwsService";
 
 describe('To check aws s3 utility', () => {
-    it('Should be able to upload dummy file', async () => {
-        const filepath = path.join(tempDir, "//1B0FFD0EBD303CD85643A543010F737D.txt");
+    // it('Should be able to upload dummy file', async () => {
+    //     const filepath = path.join(tempDir, "//1B27CB5D9CF48D16FEE215D036347936.txt");
 
-        const result = await AwsService.uploadFile(
-            filepath,
-            'assets/ssl/0/'
-        )
-        expect(result).to.be.not.null;
-        expect(result.ETag).to.be.not.null;
+    //     const result = await AwsService.uploadFile(
+    //         filepath,
+    //         'assets/ssl/cocojaunt.com/'
+    //     )
+    //     expect(result).to.be.not.null;
+    //     expect(result.ETag).to.be.not.null;
+    // });
+
+    it('should be able to get queueu url', async () => {
+        const queueName = "test";
+        const queueUrl = await AwsService.getQueueUrlByName(queueName);
+        console.log(queueUrl);
+
+        expect(queueUrl).to.be.not.null;
     })
 })

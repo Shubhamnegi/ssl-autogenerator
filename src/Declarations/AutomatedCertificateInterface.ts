@@ -1,8 +1,9 @@
 export interface AutomatedCertificate {
     id?: number;
     domainName: string,
+    brandId: string,
     certificateHash: string,
-    challangeFilePath?: string,
+    challengeFilePath?: string,
     certificateKeyPath?: string,
     certificateCrtPath?: string,
     certificateCaBundlePath?: string,
@@ -17,6 +18,7 @@ export interface AutomatedCertificate {
 
 export interface AutomatedCertificateRequest {
     domainName: string,
+    brandId: string,
     issuer: string,
     domainType: string
 }

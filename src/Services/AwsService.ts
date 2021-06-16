@@ -36,7 +36,9 @@ export class AwsService {
         const command = new PutObjectCommand({
             Bucket,
             Key,
-            Body
+            Body,
+            ACL: 'public-read',
+            ContentType: "text/plain"
         });
 
         this.logger.debug(`uploading file to ${Bucket} with key ${Key}`);
@@ -49,6 +51,10 @@ export class AwsService {
         const fileName = path.parse(filePath).name + path.parse(filePath).ext;
 
         return this.uploadToS3(AWS_CONSTANTS.bucket, prefix + fileName, fileData)
+    }
+
+    public static async uploadFileBuffer(buffer: Buffer, fullPath: string) {
+        return this.uploadToS3(AWS_CONSTANTS.bucket, fullPath, buffer)
     }
 
     private static readFilePromise(filepath: string): Promise<Buffer> {
