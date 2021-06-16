@@ -35,6 +35,16 @@ export const HaProxyGroups = sequelize.define('HaProxyGroups', {
         allowNull: false,
         field: "group_instance_ip"
     },
+    challengeQueue: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: "challenge_queue"
+    },
+    certificateQueue: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: "certificate_queue"
+    },
     createdAt: {
         type: DataTypes.INTEGER,
         allowNull: false,

@@ -16,7 +16,7 @@ describe('Test suite for mysql', () => {
     }).timeout(10000);
 
     it('should be able to get ha proxy group for internal', async () => {
-        const result = await HaProxyGroupsRepository.getListOfIpsForHaProxyGroup('ha_internal_1');
+        const result = await HaProxyGroupsRepository.getListOfIpsForHaProxyGroup('internal');
         expect(result.length).to.be.greaterThan(0);
         for (const item of result) {
             expect(item.groupType).to.be.eql('internal');

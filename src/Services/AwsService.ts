@@ -1,5 +1,5 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
-import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
+import { GetQueueUrlCommand, SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
 import { MessageAttributeValue, PublishCommand, SNSClient } from '@aws-sdk/client-sns'
 
 import { AWS_CONSTANTS } from '../Constants/AWS_CONSTANTS';
@@ -90,6 +90,22 @@ export class AwsService {
         this.logger.debug(`Pushing message to queue ${queueUrl} with message ${JSON.stringify(message)} Delay: ${delay}`)
         const result = await sqsclient.send(command);
         return result
+    }
+
+    /**
+     * To get queue url by name
+     * @param queueName 
+     * @returns 
+     */
+    public static async getQueueUrlByName(queueName: string): Promise<string> {
+        const command = new GetQueueUrlCommand({
+            QueueName: queueName
+        });
+        const result = await sqsclient.send(command);
+        if (!result.QueueUrl) {
+            throw new Error("queue not found");
+        }
+        return result.QueueUrl;
     }
 }
 

@@ -7,9 +7,9 @@ export class HaProxyGroupsRepository {
      * @param groupId 
      * @returns 
      */
-    public static async getListOfIpsForHaProxyGroup(groupId: string) {
+    public static async getListOfIpsForHaProxyGroup(groupName: string) {
         const result = await HaProxyGroups.findAll({
-            where: { groupId }
+            where: { groupName }
         });
         return result.map(x => x.toJSON()) as HaProxyGroupsInterface[];
     }

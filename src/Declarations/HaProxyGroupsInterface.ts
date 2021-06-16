@@ -5,6 +5,8 @@ export interface HaProxyGroupsInterface {
     groupId: string
     groupAvailabilityZone: string
     groupInstanceIp: string
+    challengeQueue: string;
+    certificateQueue: string;
     createdAt: Date
     updatedAt: Date
 }

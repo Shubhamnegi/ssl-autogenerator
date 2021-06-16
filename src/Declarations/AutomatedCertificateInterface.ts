@@ -14,3 +14,9 @@ export interface AutomatedCertificate {
     createdAt?: Date,
     updatedAt?: Date,
 }
+
+export interface AutomatedCertificateRequest {
+    domainName: string,
+    issuer: string,
+    domainType: string
+}
