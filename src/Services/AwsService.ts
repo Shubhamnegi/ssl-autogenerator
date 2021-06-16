@@ -1,16 +1,33 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
+import { MessageAttributeValue, PublishCommand, SNSClient } from '@aws-sdk/client-sns'
+
 import { AWS_CONSTANTS } from '../Constants/AWS_CONSTANTS';
 import { readFile } from 'fs'
 import path from 'path';
 import { getLogger } from '../Helpers/logger';
 
-const client = new S3Client({
+
+const cred = {
+    accessKeyId: AWS_CONSTANTS.accessKeyId,
+    secretAccessKey: AWS_CONSTANTS.secretAccessKey
+};
+const s3client = new S3Client({
     region: AWS_CONSTANTS.region,
-    credentials: {
-        accessKeyId: AWS_CONSTANTS.accessKeyId,
-        secretAccessKey: AWS_CONSTANTS.secretAccessKey
-    }
+    credentials: cred
 });
+
+const sqsclient = new SQSClient({
+    region: AWS_CONSTANTS.region,
+    credentials: cred
+});
+
+const snsclient = new SNSClient({
+    region: AWS_CONSTANTS.region,
+    credentials: cred
+});
+
+
 
 
 export class AwsService {
@@ -23,7 +40,7 @@ export class AwsService {
         });
 
         this.logger.debug(`uploading file to ${Bucket} with key ${Key}`);
-        const result = await client.send(command);
+        const result = await s3client.send(command);
         return result;
     }
 
@@ -42,6 +59,37 @@ export class AwsService {
                 return resolve(data);
             })
         })
+    }
+
+    /**
+     * To push new message to topic which can later be divided into multiple queue
+     */
+    public static async pushMessageToTopic(topicArn: string, message: string, attributes: { [key: string]: MessageAttributeValue }) {
+        const command = new PublishCommand({
+            Message: message,
+            MessageAttributes: attributes,
+            TopicArn: topicArn
+        });
+
+        this.logger.debug(`Pushing message to topic ${topicArn} with message ${JSON.stringify(message)}`)
+
+        const result = await snsclient.send(command);
+        return result;
+    }
+
+    /**
+     * To push message to sqs direclty
+     * Will be used to push message to a delayed queue which will be used for cert validation  
+     */
+    public static async pushMessageToQueue(message: string, queueUrl: string, delay = 60) {
+        const command = new SendMessageCommand({
+            MessageBody: message,
+            QueueUrl: queueUrl,
+            DelaySeconds: delay
+        })
+        this.logger.debug(`Pushing message to queue ${queueUrl} with message ${JSON.stringify(message)} Delay: ${delay}`)
+        const result = await sqsclient.send(command);
+        return result
     }
 }
 
