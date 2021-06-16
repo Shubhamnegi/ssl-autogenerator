@@ -17,11 +17,18 @@ describe('To check aws s3 utility', () => {
     //     expect(result.ETag).to.be.not.null;
     // });
 
-    it('should be able to get queueu url', async () => {
-        const queueName = "test";
-        const queueUrl = await AwsService.getQueueUrlByName(queueName);
-        console.log(queueUrl);
+    // it('should be able to get queueu url', async () => {
+    //     const queueName = "test";
+    //     const queueUrl = await AwsService.getQueueUrlByName(queueName);
+    //     console.log(queueUrl);
 
-        expect(queueUrl).to.be.not.null;
+    //     expect(queueUrl).to.be.not.null;
+    // })
+
+    it('should be able to get queue length', async () => {
+        const queueUrl = await AwsService.getQueueUrlByName('test');
+        const result = await AwsService.getQueueLength(queueUrl);
+        
+        expect(typeof result).to.be.eql('number');
     })
 })

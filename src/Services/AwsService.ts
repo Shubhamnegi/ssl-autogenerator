@@ -1,5 +1,5 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
-import { GetQueueUrlCommand, SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
+import { GetQueueAttributesCommand, GetQueueUrlCommand, SendMessageCommand, SQSClient, ReceiveMessageCommand, DeleteMessageCommand } from '@aws-sdk/client-sqs'
 import { MessageAttributeValue, PublishCommand, SNSClient } from '@aws-sdk/client-sns'
 
 import { AWS_CONSTANTS } from '../Constants/AWS_CONSTANTS';
@@ -112,6 +112,46 @@ export class AwsService {
             throw new Error("queue not found");
         }
         return result.QueueUrl;
+    }
+
+    public static async getQueueLength(QueueUrl: string) {
+        const command = new GetQueueAttributesCommand({
+            QueueUrl,
+            AttributeNames: ['ApproximateNumberOfMessages']
+        });
+
+        const result = await sqsclient.send(command);
+        if (!result || !result.Attributes || !result.Attributes.ApproximateNumberOfMessages) {
+            return 0;
+        }
+        const len = result?.Attributes?.ApproximateNumberOfMessages as string;
+        return Number.parseInt(len);
+    }
+
+    public static async getQueueMessage(
+        QueueUrl: string,
+        MaxNumberOfMessages = 10,
+        VisibilityTimeout = 60,
+        WaitTimeSeconds = 20
+    ) {
+        const command = new ReceiveMessageCommand({
+            QueueUrl,
+            MaxNumberOfMessages,
+            VisibilityTimeout,
+            WaitTimeSeconds
+        });
+        const result = await sqsclient.send(command);
+        return result.Messages || [];
+    }
+
+    public static async deleteMessage(QueueUrl: string, ReceiptHandle: string) {
+        const command = new DeleteMessageCommand({
+            QueueUrl,
+            ReceiptHandle
+        });
+
+        const result = await sqsclient.send(command);
+        return result;
     }
 }
 

@@ -59,17 +59,17 @@ describe("Test suite for ssl for free", () => {
 
     // }).timeout(60000);
 
-    // it('should be able to validate certificate', async () => {
-    //     const domain = "trezeokitchens.in";
-    //     const hash = "b9e6cf88fedd95e2915fd4cfaabb9c52";
-    //     const sslforfree = new SslForFree(domain)
-    //     const result = await sslforfree.validateCertificate(hash);
+    it('should be able to validate certificate', async () => {
+        const domain = "cocojaunt.com";
+        const hash = "7bf678afc8a32c7dfa802a6d6ab5f49f";
+        const sslforfree = new SslForFree(domain)
+        const result = await sslforfree.validateCertificate(hash);
 
-    //     console.log(JSON.stringify(result.data));
+        console.log(JSON.stringify(result.data));
 
-    //     expect(result.data).to.haveOwnProperty("success");
-    //     expect(result.data).to.haveOwnProperty("error");
-    // }).timeout(60000);
+        expect(result.data).to.haveOwnProperty("success");
+        expect(result.data).to.haveOwnProperty("error");
+    }).timeout(60000);
 
     // it('should be able to download certificate', async () => {
     //     const domain = "memsaabfood.com";
