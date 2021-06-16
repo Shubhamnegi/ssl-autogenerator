@@ -24,8 +24,10 @@ export class DelayedQueueConsumer {
             };
             this.queueUrl = await AwsService.getQueueUrlByName(this.queueName);
         };
+        this.logger.debug("starting poll for " + this.queueUrl);
         while (true) {
             if (this.stop) {
+                this.logger.info('stoping poll for q: ' + this.queueUrl);
                 break;
             }
 
