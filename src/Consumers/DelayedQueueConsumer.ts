@@ -31,11 +31,13 @@ export class DelayedQueueConsumer {
 
             const queueLength = await AwsService.getQueueLength(this.queueUrl);
             if (queueLength === 0) {
+                this.logger.debug("No message found, sleeping")
                 DelayedQueueConsumer.sleep(10000) // sleep for 10 sec;
             }
             const messages = await AwsService.getQueueMessage(this.queueUrl);
             if (messages.length === 0) {
                 // as the previos check gets only approximate value
+                this.logger.debug("No message found, sleeping")
                 DelayedQueueConsumer.sleep(10000) // sleep for 10 sec;
             }
             for (const message of messages) {
@@ -46,12 +48,13 @@ export class DelayedQueueConsumer {
     }
 
     private async deleteMessage(receiptHandle: string) {
+        this.logger.debug("deleting message");
         await AwsService.deleteMessage(this.queueUrl, receiptHandle);
     }
 
     async handle(message: Message) {
         const log = this.logger.child({ id: message.MessageId });
-        log.debug(message);        
+        log.debug(message);
     }
 
     stopPoll() {
