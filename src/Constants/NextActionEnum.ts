@@ -1,0 +1,5 @@
+export enum NextActionEnum {
+    VALIDATE = 'VALIDATE',
+    VALIDATION_STATUS = 'VALIDATION_STATUS',
+    CONFIRM_SSL = 'CONFIRM_SSL'
+}

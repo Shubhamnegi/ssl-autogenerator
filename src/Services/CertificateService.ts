@@ -1,4 +1,5 @@
 import { AWS_CONSTANTS } from '../Constants/AWS_CONSTANTS';
+import { NextActionEnum } from '../Constants/NextActionEnum';
 import { AutomatedCertificateRequest } from '../Declarations/AutomatedCertificateInterface';
 import { CsrRequest } from '../Declarations/CsrRequestInterface';
 import { CertificateNotFound } from '../Errors/CertificateNotFound';
@@ -9,6 +10,12 @@ import { AutomatedCertificatesRepository } from '../Repository/AutomatedCertific
 import { HaProxyGroupsRepository } from '../Repository/HaProxyGroupsRepository';
 import { SslForFree } from '../Vendors/SslForFree';
 import { AwsService } from './AwsService';
+import { delayedQueueFormatter } from '../Helpers/formatters';
+import { unzipHelper } from '../Helpers/unzipHelper';
+import { tempDir } from '../Constants/SSL_FOR_FREE';
+import path from 'path';
+
+
 
 export class CertificateService {
     private static logger = getLogger('CertificateService');
@@ -81,17 +88,16 @@ export class CertificateService {
         log.debug("pushing message to " + delayedQueue);
 
         // Push delayed message to queue for valition 
-        await AwsService.pushMessageToQueue(messageFormatter(
-            'CREATE',
-            {
-                certificateId: certResult.data.id,
-                domainType: request.domainType,
-                nextAction: "validate"
-            }),
-            delayedQueue,
-            0);
+        const delayedMessage = delayedQueueFormatter(certResult.data.id, NextActionEnum.VALIDATE)
+        const delayedMessageFormatted = messageFormatter('CREATE', delayedMessage)
 
-        log.debug("pushed message to delayed queue");
+        await AwsService.pushMessageToQueue(
+            delayedMessageFormatted,
+            delayedQueue,
+            60
+        );
+
+        log.debug("pushed message to delayed queue " + delayedMessageFormatted);
         return s3Path;
     }
 
@@ -111,11 +117,45 @@ export class CertificateService {
             throw new Error("Error validating certificate");
         }
         // On successfull validation 
-        await ssl.downloadCertificate(certificateId);
+
+    }
+
+    public static async getValidationStatus(certificateId: string) {
+        // get certificate details by id
+        const result = await AutomatedCertificatesRepository.getCertificateByHash(certificateId);
+        const domainName = result.domainName;
+        const log = this.logger.child({ domainName });
+        log.info("requesting validation status");
+        // check validation status
+        // if validation is 1 then download certificate
+
+        const ssl = new SslForFree(domainName);
+        const validationResult = await ssl.getValidationStatus(certificateId);
+
+        if (validationResult.data.validation_completed === 0) {
+            throw new Error("Validation failed")
+        }
         // Download certificate
+        await ssl.downloadCertificate(certificateId);
+
+        unzipHelper(
+            path.join(tempDir, certificateId + '.zip'),
+            path.join(tempDir, certificateId)
+        )
+
+        const brandId = result.brandId
+
+        // Unzip and rename certificate 
+        // Append doain name  and brand id
         // Upload certificate to s3
         // Push certificate link to topic with group attribute 
         // Update database
+        const groups = await HaProxyGroupsRepository.getListOfIpsForHaProxyGroup(result.domainType);
+        for (const g of groups) {
+            log.debug('push to ' + g.certificateQueue)
+        }
+        // rename certificate and upload to the queue
+        // push next stats as 
     }
 
     public static getEligibleDomainsForRenewal() {

@@ -129,7 +129,7 @@ export class SslForFree {
             url: this.baseurl + ep,
             responseType: "stream"
         }).then(function (response) {
-            response.data.pipe(createWriteStream(path.join(tempDir + `\\${id}.zip`)));
+            response.data.pipe(createWriteStream(path.join(tempDir + `//${id}.zip`)));
         });
     }
 
