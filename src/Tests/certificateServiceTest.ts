@@ -8,16 +8,16 @@ describe('Test suite for certificate service', () => {
     it('Should be able to create challenge', async () => {
         const result = await CertificateService.initchallenge(
             {
-                brandId: '1946',
-                domainName: "cocojaunt.com",
+                brandId: '3065',
+                domainName: "lechef.co.in",
                 domainType: "internal",
                 issuer: "sslforfree"
             },
             {
-                commonName: "cocojaunt.com",
+                commonName: "lechef.co.in",
                 country: "IN",
                 location: "Delhi",
-                organization: "cocojaunt",
+                organization: "lechef.co.in",
                 organizationalUnit: "food",
                 state: "Delhi"
             }

@@ -25,10 +25,10 @@ export const getcsr = (request: CsrRequest) => {
     if (process.env.OPENSSL_BINARY) {
         openSSlBinary = process.env.OPENSSL_BINARY;
     }
-    
-    const finalCommand = `${openSSlBinary} req -nodes -newkey rsa:2048 -keyout "${tempDir}\\${unique}.key" -out "${tempDir}\\${unique}.csr" -subj "${subject}"`
+
+    const finalCommand = `${openSSlBinary} req -nodes -newkey rsa:2048 -keyout "${tempDir}//${unique}.key" -out "${tempDir}//${unique}.csr" -subj "${subject}"`
     execSync(finalCommand);
-    const buf = readFileSync(`${tempDir}/${unique}.csr`);
-    
-    return buf.toString();
+    const buf = readFileSync(`${tempDir}//${unique}.csr`);
+
+    return buf.toString().replace(/\n/ig, '');
 }

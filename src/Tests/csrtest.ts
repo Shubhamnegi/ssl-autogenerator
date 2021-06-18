@@ -17,7 +17,7 @@ describe("Csr test suite ", () => {
         }
         const result = getcsr(request);
         
-        // console.log(result);
+        console.log({result});
 
         expect(result).to.be.not.null;
         expect(typeof result).to.be.eql('string')

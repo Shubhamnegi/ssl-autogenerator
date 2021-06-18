@@ -11,7 +11,7 @@ dotenv.config({
 
 
 import { AWS_CONSTANTS } from './Constants/AWS_CONSTANTS';
-import { DelayedQueueConsumer } from './Consumers/delayedQueueConsumer';
+import { DelayedQueueConsumer } from './Consumers/DelayedQueueConsumer';
 
 
 const queue = new DelayedQueueConsumer();

@@ -5,4 +5,4 @@ export const SSLFORFREE = {
     defaultCertificateValidity: 90
 }
 
-export const tempDir = path.join(__dirname, "\\..\\..\\temp");
+export const tempDir = path.normalize(path.join(__dirname, "//..//..//temp"));
