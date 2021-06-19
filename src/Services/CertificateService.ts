@@ -70,9 +70,11 @@ export class CertificateService {
         const privateKeyName = request.domainName.replace(/\./ig, "_") + "_private.key_" + request.brandId
         const privateS3Path = AWS_CONSTANTS.s3Domain + "/" + prefix;
         const privateS3FullPath = privateS3Path + privateKeyName;
+
         const privateKeyBuffer = readFileSync(path.join(tempDir, uniqeCertName + ".key"))
         await AwsService.uploadFileBuffer(privateKeyBuffer, prefix + privateKeyName);
 
+        log.info("s3 path:" + privateS3FullPath)
 
         await AutomatedCertificatesRepository.updateChallengeAndKey(
             certResult.data.id,
@@ -150,22 +152,47 @@ export class CertificateService {
         // Download certificate
         await ssl.downloadCertificate(certificateId);
 
+        // Unzip         
         unzipHelper(
             path.join(tempDir, certificateId + '.zip'),
             path.join(tempDir, certificateId)
         )
 
-        const brandId = result.brandId
-
-        // Unzip and rename certificate 
         // Append doain name  and brand id
         // Upload certificate to s3
+
+        const brandId = result.brandId
+        const prefix = `assets/ssl/${brandId}/`
+
+        const caBundleS3Path = AWS_CONSTANTS.s3Domain + "/" + prefix;
+        const caBundleFileName = 'ca_bundle.crt_' + brandId
+        const caBundleS3Fullpath = caBundleS3Path + caBundleFileName;
+
+        log.info('s3 path', caBundleS3Fullpath)
+
+        const caBundleBuffer = readFileSync(path.join(tempDir, certificateId, "ca_bundle.crt"))
+        await AwsService.uploadFileBuffer(caBundleBuffer, prefix + caBundleFileName);
+
+        const certificateS3Path = AWS_CONSTANTS.s3Domain + "/" + prefix;
+        const certificateFileName = 'ca_bundle.crt_' + brandId
+        const certificateS3Fullpath = certificateS3Path + certificateFileName;
+
+        log.info('s3 path', certificateS3Fullpath)
+
+        const certificateBuffer = readFileSync(path.join(tempDir, certificateId, "certificate.crt"))
+        await AwsService.uploadFileBuffer(certificateBuffer, prefix + certificateFileName);
+
+        await AutomatedCertificatesRepository.updateCertificates(certificateId, caBundleS3Fullpath, certificateS3Fullpath)
+
+        
+
+
         // Push certificate link to topic with group attribute 
         // Update database
-        const groups = await HaProxyGroupsRepository.getListOfIpsForHaProxyGroup(result.domainType);
-        for (const g of groups) {
-            log.debug('push to ' + g.certificateQueue)
-        }
+        // const groups = await HaProxyGroupsRepository.getListOfIpsForHaProxyGroup(result.domainType);
+        // for (const g of groups) {
+        //     log.debug('push to ' + g.certificateQueue)
+        // }
         // rename certificate and upload to the queue
         // push next stats as 
     }

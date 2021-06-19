@@ -72,13 +72,13 @@ export class SslForFree {
      */
     async createCertificate(
         csrRequest: CsrRequest,
-        unique:string
+        unique: string
     ): Promise<axios.AxiosResponse<CertificateResult>> {
         const ep = "/certificates";
         const postData = {
             certificate_domains: this.domain,
             certificate_validity_days: this.validity,
-            certificate_csr: getcsr(csrRequest,unique)
+            certificate_csr: getcsr(csrRequest, unique)
         };
 
         this.logger.debug({ ep, postData })
@@ -130,7 +130,9 @@ export class SslForFree {
             url: this.baseurl + ep,
             responseType: "stream"
         }).then(function (response) {
-            response.data.pipe(createWriteStream(path.join(tempDir + `//${id}.zip`)));
+            return response.data.pipe(createWriteStream(path.join(tempDir + `//${id}.zip`)));
+        }).then(() => {
+            this.logger.info('downloded certificate for id ' + id)
         });
     }
 

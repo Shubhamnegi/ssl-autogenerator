@@ -67,7 +67,7 @@ export class AutomatedCertificatesRepository {
         }
         cert.set('challengeFilePath', challenge);
         cert.set('certificateKeyPath', privateKey);
-        
+
         await cert.save();
         cert = await cert.reload()
         return cert.toJSON() as AutomatedCertificateInteface;
@@ -110,4 +110,16 @@ export class AutomatedCertificatesRepository {
         return cert.toJSON() as AutomatedCertificateInteface;
     }
 
+
+    public static async updateCertificates(certificateHash: string, caBundle: string, certificate: string) {
+        let cert = await AutomatedCertificates.findOne({ where: { certificateHash } });
+        if (!cert) {
+            throw new CertificateNotFound(certificateHash);
+        }
+        cert.set('certificateCaBundlePath', caBundle);
+        cert.set('certificateCrtPath', certificate);
+        await cert.save();
+        cert = await cert.reload()
+        return cert.toJSON() as AutomatedCertificateInteface;
+    }
 }

@@ -61,7 +61,7 @@ describe("Test suite for ssl for free", () => {
 
     // it('should be able to validate certificate', async () => {
     //     const domain = "lechef.co.in";
-    //     const hash = "d5a7686ad42e8d5a36dc07fb56a34346";
+    //     const hash = "9ea86bad8e688736822266ec36420063";
     //     const sslforfree = new SslForFree(domain)
     //     const result = await sslforfree.validateCertificate(hash);
 
@@ -83,15 +83,15 @@ describe("Test suite for ssl for free", () => {
 
     // }).timeout(60000);
 
-    // it('should be able to get validation status', async () => {
-    //     const hash = "d5a7686ad42e8d5a36dc07fb56a34346";
-    //     const result = await sslforfree.getValidationStatus(hash);
+    it('should be able to get validation status', async () => {
+        const hash = "9ea86bad8e688736822266ec36420063";
+        const result = await sslforfree.getValidationStatus(hash);
 
-    //     console.log(result.data)
-    //     expect(result).to.be.not.null;
-    //     expect(result.data).to.be.not.null;
-    //     expect(result.data).to.haveOwnProperty('validation_completed');
-    //     // expect(result.data).to.haveOwnProperty('details');
-    // });
+        console.log(result.data)
+        expect(result).to.be.not.null;
+        expect(result.data).to.be.not.null;
+        expect(result.data).to.haveOwnProperty('validation_completed');
+        // expect(result.data).to.haveOwnProperty('details');
+    });
 
 })
