@@ -60,6 +60,19 @@ export class AutomatedCertificatesRepository {
         return cert.toJSON() as AutomatedCertificateInteface;
     }
 
+    public static async updateChallengeAndKey(certificateHash: string, challenge: string, privateKey: string) {
+        let cert = await AutomatedCertificates.findOne({ where: { certificateHash } });
+        if (!cert) {
+            throw new CertificateNotFound(certificateHash);
+        }
+        cert.set('challengeFilePath', challenge);
+        cert.set('certificateKeyPath', privateKey);
+        
+        await cert.save();
+        cert = await cert.reload()
+        return cert.toJSON() as AutomatedCertificateInteface;
+    }
+
     /**
      * 
      * @param certificateHash 

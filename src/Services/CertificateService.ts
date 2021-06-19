@@ -14,7 +14,7 @@ import { delayedQueueFormatter } from '../Helpers/formatters';
 import { unzipHelper } from '../Helpers/unzipHelper';
 import { tempDir } from '../Constants/SSL_FOR_FREE';
 import path from 'path';
-
+import { readFileSync } from 'fs'
 
 
 export class CertificateService {
@@ -34,7 +34,8 @@ export class CertificateService {
 
         // create new draft certificate
         const sslForFree = new SslForFree(domainName);
-        const certResult = await sslForFree.createCertificate(csrRequest);
+        const uniqeCertName = new Date().getTime().toString();
+        const certResult = await sslForFree.createCertificate(csrRequest, uniqeCertName);
 
         log.debug(certResult.data);
 
@@ -59,19 +60,30 @@ export class CertificateService {
         const prefix = `assets/ssl/${request.brandId}/`
         const fileName = (validationLink.slice(validationLink.lastIndexOf('/') + 1));
 
-        const s3Path = AWS_CONSTANTS.s3Domain + "/" + prefix;
-        const s3Fullpath = s3Path + fileName;
+        const csrS3Path = AWS_CONSTANTS.s3Domain + "/" + prefix;
+        const csrS3Fullpath = csrS3Path + fileName;
 
-        log.info("s3 path:" + s3Fullpath)
+        log.info("s3 path:" + csrS3Fullpath)
 
         await AwsService.uploadFileBuffer(fileBuffer, prefix + fileName);
 
-        await AutomatedCertificatesRepository.updatechallengeFile(certResult.data.id, s3Fullpath); // Update database with s3 link of challenge file
+        const privateKeyName = request.domainName.replace(/\./ig, "_") + "_private.key_" + request.brandId
+        const privateS3Path = AWS_CONSTANTS.s3Domain + "/" + prefix;
+        const privateS3FullPath = privateS3Path + privateKeyName;
+        const privateKeyBuffer = readFileSync(path.join(tempDir, uniqeCertName + ".key"))
+        await AwsService.uploadFileBuffer(privateKeyBuffer, prefix + privateKeyName);
+
+
+        await AutomatedCertificatesRepository.updateChallengeAndKey(
+            certResult.data.id,
+            csrS3Fullpath,
+            privateS3FullPath
+        ); // Update database with s3 link of challenge file and key
 
         // Push challenge file to all queue for uploading to ha proxy with group attribute
 
         const message = messageFormatter('CREATE', {
-            challengeFilePath: s3Fullpath,
+            challengeFilePath: csrS3Fullpath,
             brandId: request.brandId
         });
 
@@ -98,7 +110,7 @@ export class CertificateService {
         );
 
         log.debug("pushed message to delayed queue " + delayedMessageFormatted);
-        return s3Path;
+        return csrS3Path;
     }
 
     public static async triggerValidation(certificateId: string) {

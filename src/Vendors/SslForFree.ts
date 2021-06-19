@@ -71,13 +71,14 @@ export class SslForFree {
      * @returns 
      */
     async createCertificate(
-        csrRequest: CsrRequest
+        csrRequest: CsrRequest,
+        unique:string
     ): Promise<axios.AxiosResponse<CertificateResult>> {
         const ep = "/certificates";
         const postData = {
             certificate_domains: this.domain,
             certificate_validity_days: this.validity,
-            certificate_csr: getcsr(csrRequest)
+            certificate_csr: getcsr(csrRequest,unique)
         };
 
         this.logger.debug({ ep, postData })

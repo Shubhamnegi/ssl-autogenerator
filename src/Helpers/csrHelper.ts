@@ -11,9 +11,10 @@ import { tempDir } from "../Constants/SSL_FOR_FREE";
  * This is required by all the vendors
  * 
  * @param request {CsrRequest}
+ * @param unique {string} unique name for certificate
  */
-export const getcsr = (request: CsrRequest) => {
-    const unique = new Date().getTime();
+export const getcsr = (request: CsrRequest, unique: string) => {
+    // const unique = new Date().getTime();
     const ajv = new Ajv();
     const validate = ajv.compile(schema)
     const valid = validate(request)
