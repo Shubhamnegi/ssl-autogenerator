@@ -1,6 +1,8 @@
 import { Message } from "@aws-sdk/client-sqs";
+import { NextActionEnum } from "../Constants/NextActionEnum";
 import { getLogger } from "../Helpers/logger";
 import { AwsService } from "../Services/AwsService";
+import { CertificateService } from "../Services/CertificateService";
 
 export class DelayedQueueConsumer {
     private stop = false;
@@ -56,7 +58,20 @@ export class DelayedQueueConsumer {
 
     async handle(message: Message) {
         const log = this.logger.child({ id: message.MessageId });
-        log.debug(message);
+        log.debug(message.Body);
+        const data = JSON.parse(message.Body as string);
+        const action = data.payload.nextAction;
+        const certificateHash = data.payload.certificateHash;
+        switch (action) {
+            case NextActionEnum.VALIDATE:
+                CertificateService.triggerValidation(certificateHash);
+                break;
+            case NextActionEnum.VALIDATION_STATUS:
+                CertificateService.getValidationStatus(certificateHash);
+                break
+            default:
+                log.error("action " + action + " is not handled");
+        }
     }
 
     stopPoll() {

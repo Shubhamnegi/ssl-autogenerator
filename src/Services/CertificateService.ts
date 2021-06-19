@@ -131,7 +131,17 @@ export class CertificateService {
             throw new Error("Error validating certificate");
         }
         // On successfull validation 
+        const delayedQueue = await AwsService.getQueueUrlByName(AWS_CONSTANTS.delayedQueue);
+        log.debug("pushing message to " + delayedQueue);
 
+        const delayedMessage = delayedQueueFormatter(certificateId, NextActionEnum.VALIDATION_STATUS)
+        const delayedMessageFormatted = messageFormatter('CREATE', delayedMessage)
+
+        await AwsService.pushMessageToQueue(
+            delayedMessageFormatted,
+            delayedQueue,
+            60
+        );
     }
 
     public static async getValidationStatus(certificateId: string) {
@@ -216,14 +226,14 @@ export class CertificateService {
         log.debug("pushing message to " + delayedQueue);
 
         // Push delayed message to queue for valition 
-        const delayedMessage = delayedQueueFormatter(certificateId, NextActionEnum.CONFIRM_SSL)
-        const delayedMessageFormatted = messageFormatter('CREATE', delayedMessage)
+        // const delayedMessage = delayedQueueFormatter(certificateId, NextActionEnum.CONFIRM_SSL)
+        // const delayedMessageFormatted = messageFormatter('CREATE', delayedMessage)
 
-        await AwsService.pushMessageToQueue(
-            delayedMessageFormatted,
-            delayedQueue,
-            60
-        );
+        // await AwsService.pushMessageToQueue(
+        //     delayedMessageFormatted,
+        //     delayedQueue,
+        //     60
+        // );
     }
 
     public static getEligibleDomainsForRenewal() {
