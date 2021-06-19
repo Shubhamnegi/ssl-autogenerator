@@ -10,3 +10,11 @@ export const messageFormatter = (
         payload
     })
 }
+
+export const sleep = (timeout: number) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            return resolve(null);
+        }, timeout);
+    });
+}

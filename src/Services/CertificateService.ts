@@ -5,7 +5,7 @@ import { CsrRequest } from '../Declarations/CsrRequestInterface';
 import { CertificateNotFound } from '../Errors/CertificateNotFound';
 import { challengeFileHelper, createBufferFromArray } from '../Helpers/challengeFileHelper';
 import { getLogger } from '../Helpers/logger';
-import { messageFormatter } from '../Helpers/util';
+import { messageFormatter, sleep } from '../Helpers/util';
 import { AutomatedCertificatesRepository } from '../Repository/AutomatedCertificatesRepository';
 import { HaProxyGroupsRepository } from '../Repository/HaProxyGroupsRepository';
 import { SslForFree } from '../Vendors/SslForFree';
@@ -152,6 +152,8 @@ export class CertificateService {
         // Download certificate
         await ssl.downloadCertificate(certificateId);
 
+        await sleep(1000);
+
         // Unzip         
         unzipHelper(
             path.join(tempDir, certificateId + '.zip'),
@@ -185,7 +187,7 @@ export class CertificateService {
         // Update database
         result = await AutomatedCertificatesRepository.updateCertificates(certificateId, caBundleS3Fullpath, certificateS3Fullpath)
 
-        // psh to qee
+        // push to qee
 
         const groups = await HaProxyGroupsRepository.getListOfIpsForHaProxyGroup(result.domainType);
         for (const g of groups) {
@@ -209,7 +211,7 @@ export class CertificateService {
             await AwsService.pushMessageToQueue(message, queueUrl, 0) // push certificate file to all haproxy 
             log.debug("pushed message to " + g.certificateQueue);
         }
-        
+
         const delayedQueue = await AwsService.getQueueUrlByName(AWS_CONSTANTS.delayedQueue);
         log.debug("pushing message to " + delayedQueue);
 
