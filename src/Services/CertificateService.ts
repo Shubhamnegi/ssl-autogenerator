@@ -136,7 +136,7 @@ export class CertificateService {
 
     public static async getValidationStatus(certificateId: string) {
         // get certificate details by id
-        const result = await AutomatedCertificatesRepository.getCertificateByHash(certificateId);
+        let result = await AutomatedCertificatesRepository.getCertificateByHash(certificateId);
         const domainName = result.domainName;
         const log = this.logger.child({ domainName });
         log.info("requesting validation status");
@@ -174,7 +174,7 @@ export class CertificateService {
         await AwsService.uploadFileBuffer(caBundleBuffer, prefix + caBundleFileName);
 
         const certificateS3Path = AWS_CONSTANTS.s3Domain + "/" + prefix;
-        const certificateFileName = 'ca_bundle.crt_' + brandId
+        const certificateFileName = 'certificate.crt_' + brandId
         const certificateS3Fullpath = certificateS3Path + certificateFileName;
 
         log.info('s3 path', certificateS3Fullpath)
@@ -182,19 +182,46 @@ export class CertificateService {
         const certificateBuffer = readFileSync(path.join(tempDir, certificateId, "certificate.crt"))
         await AwsService.uploadFileBuffer(certificateBuffer, prefix + certificateFileName);
 
-        await AutomatedCertificatesRepository.updateCertificates(certificateId, caBundleS3Fullpath, certificateS3Fullpath)
-
-        
-
-
-        // Push certificate link to topic with group attribute 
         // Update database
-        // const groups = await HaProxyGroupsRepository.getListOfIpsForHaProxyGroup(result.domainType);
-        // for (const g of groups) {
-        //     log.debug('push to ' + g.certificateQueue)
-        // }
-        // rename certificate and upload to the queue
-        // push next stats as 
+        result = await AutomatedCertificatesRepository.updateCertificates(certificateId, caBundleS3Fullpath, certificateS3Fullpath)
+
+        // psh to qee
+
+        const groups = await HaProxyGroupsRepository.getListOfIpsForHaProxyGroup(result.domainType);
+        for (const g of groups) {
+            log.debug('push to ' + g.certificateQueue)
+            const data: any = {
+                "brandId": brandId,
+                "crtFilePath": result.certificateCrtPath,
+                "crtKeyFilePath": result.certificateKeyPath,
+                "crtDomainName": result.domainName,
+                "crtIssuer": result.issuer,
+                "crtType": 1,
+                "crtDomainType": result.domainType,
+                "crtCaBundlePath": result.certificateCaBundlePath,
+                "crtExpiredDate": result.expiryDate,
+                "crtUserEmail": "",
+                "timezone": "Asia/Kolkata",
+            }
+            const message = messageFormatter('CREATE', data);
+
+            const queueUrl = await AwsService.getQueueUrlByName(g.certificateQueue);
+            await AwsService.pushMessageToQueue(message, queueUrl, 0) // push certificate file to all haproxy 
+            log.debug("pushed message to " + g.certificateQueue);
+        }
+        
+        const delayedQueue = await AwsService.getQueueUrlByName(AWS_CONSTANTS.delayedQueue);
+        log.debug("pushing message to " + delayedQueue);
+
+        // Push delayed message to queue for valition 
+        const delayedMessage = delayedQueueFormatter(certificateId, NextActionEnum.CONFIRM_SSL)
+        const delayedMessageFormatted = messageFormatter('CREATE', delayedMessage)
+
+        await AwsService.pushMessageToQueue(
+            delayedMessageFormatted,
+            delayedQueue,
+            60
+        );
     }
 
     public static getEligibleDomainsForRenewal() {
