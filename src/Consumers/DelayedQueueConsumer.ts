@@ -14,6 +14,9 @@ export class DelayedQueueConsumer extends BaseConsumer {
         const action = data.payload.nextAction;
         const certificateHash = data.payload.certificateHash;
         switch (action) {
+            case NextActionEnum.RENEW_CERTITICATE:
+                CertificateService.renewDomain(certificateHash)
+                break;
             case NextActionEnum.VALIDATE:
                 CertificateService.triggerValidation(certificateHash);
                 break;

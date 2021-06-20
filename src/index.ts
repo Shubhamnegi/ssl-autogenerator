@@ -19,6 +19,7 @@ import Logger from "bunyan";
 import { HttpError } from "./Errors/HttpError";
 import { getLogger } from './Helpers/logger';
 import { Mysql } from './Connections/mysql';
+import { automatedCertificateRoute } from './Routes/automatedCertificate';
 
 
 const applicationLogger = getLogger("application-logger")
@@ -30,7 +31,11 @@ app.get('/health', (req, res, next) => {
     return res.json({ status: "up" })
 })
 
-app.use(expressBunyan.default())
+app.use(expressBunyan.default({
+    name: "access-logger"
+}))
+
+app.use('/api/v1', automatedCertificateRoute)
 
 // Use next function for error handling
 const errorHandler = (

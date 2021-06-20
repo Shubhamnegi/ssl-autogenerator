@@ -129,7 +129,7 @@ export class CertificateService {
         );
 
         log.debug("pushed message to delayed queue " + delayedMessageFormatted);
-        return csrS3Path;
+        // return csrS3Path;
     }
 
     public static async triggerValidation(certificateId: string) {
@@ -253,10 +253,38 @@ export class CertificateService {
         // );
     }
 
-    public static getEligibleDomainsForRenewal() {
+    public static async getEligibleDomainsForRenewal() {
         // Query database for domains with current date > expiry - 10 days
         // Push all the messages in queue for renewal with a delay of 10 min
         // use this cron only once in a day to remove conflicts
+        const log = this.logger.child('expiry domain')
+        const delayedQueue = await AwsService.getQueueUrlByName(AWS_CONSTANTS.delayedQueue);
+
+
+        const result = await AutomatedCertificatesRepository.getExpiringCertificates()
+        for (const i of result) {
+            log.debug("pushing message to " + delayedQueue);
+            const delayedMessage = delayedQueueFormatter(i.certificateHash, NextActionEnum.RENEW_CERTITICATE)
+            const delayedMessageFormatted = messageFormatter('CREATE', delayedMessage)
+            await AwsService.pushMessageToQueue(
+                delayedMessageFormatted,
+                delayedQueue,
+                60
+            );
+            log.debug("pushed message to delayed queue " + delayedMessageFormatted);
+        }
+    }
+
+    public static async renewDomain(certificateHash: string) {
+        const cert = await AutomatedCertificatesRepository.getCertificateByHash(certificateHash)
+        CertificateService.initchallenge({
+            brandId: cert.brandId,
+            domainName: cert.domainName,
+            domainType: cert.domainType,
+            issuer: cert.issuer
+        },
+            JSON.parse(cert.csrMeta as string) as CsrRequest
+        )
     }
 
 }

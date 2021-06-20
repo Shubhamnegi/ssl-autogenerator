@@ -1,3 +1,4 @@
+import { Sequelize } from "sequelize";
 import { AutomatedCertificate as AutomatedCertificateInteface } from "../Declarations/AutomatedCertificateInterface";
 import { CertificateNotFound } from "../Errors/CertificateNotFound";
 import { AutomatedCertificates } from "../Models/AutomatedCertificates";
@@ -39,11 +40,13 @@ export class AutomatedCertificatesRepository {
      * @returns 
      */
     public static async registerAutomatedCertificate(data: AutomatedCertificateInteface) {
+        const currentDate = new Date();
         if (!data.expiryDate) {
-            const currentDate = new Date();
             const expiryDate = new Date(new Date(currentDate).setDate(currentDate.getDate() + 90))
-            
             data.expiryDate = new Date(expiryDate);
+        }
+        if (!data.autoRenewedOn) {
+            data.autoRenewedOn = currentDate
         }
         const result = await AutomatedCertificates.create(data);
         return result.toJSON() as AutomatedCertificateInteface;
@@ -62,7 +65,7 @@ export class AutomatedCertificatesRepository {
         cert.set('certificateHash', certificateHash);
         cert.set('autoRenewedOn', currentDate);
         cert.set('expiryDate', expiryDate);
-        
+
         await cert.save();
         cert = await cert.reload();
         return cert;
@@ -146,5 +149,11 @@ export class AutomatedCertificatesRepository {
         await cert.save();
         cert = await cert.reload()
         return cert.toJSON() as AutomatedCertificateInteface;
+    }
+
+    public static async getExpiringCertificates() {
+        const literal = 'Date(CURRENT_DATE) >  Date(date_sub(expiryDate ,INTERVAL 10 DAY))'
+        const res = await AutomatedCertificates.findAll({ where: Sequelize.literal(literal) })
+        return res.map(x => x.toJSON()) as AutomatedCertificateInteface[]
     }
 }
