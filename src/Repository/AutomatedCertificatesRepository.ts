@@ -39,8 +39,33 @@ export class AutomatedCertificatesRepository {
      * @returns 
      */
     public static async registerAutomatedCertificate(data: AutomatedCertificateInteface) {
+        if (!data.expiryDate) {
+            const currentDate = new Date();
+            const expiryDate = new Date(new Date(currentDate).setDate(currentDate.getDate() + 90))
+            
+            data.expiryDate = new Date(expiryDate);
+        }
         const result = await AutomatedCertificates.create(data);
         return result.toJSON() as AutomatedCertificateInteface;
+    }
+
+    public static async updateCertificateHash(domainName: string, certificateHash: string) {
+        let cert = await AutomatedCertificates.findOne({
+            where: { domainName }
+        })
+        if (!cert) {
+            throw new CertificateNotFound(domainName);
+        }
+        const currentDate = new Date();
+        const expiryDate = new Date(new Date(currentDate).setDate(currentDate.getDate() + 90))
+
+        cert.set('certificateHash', certificateHash);
+        cert.set('autoRenewedOn', currentDate);
+        cert.set('expiryDate', expiryDate);
+        
+        await cert.save();
+        cert = await cert.reload();
+        return cert;
     }
 
     /**

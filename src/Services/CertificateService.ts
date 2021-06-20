@@ -19,16 +19,24 @@ import { readFileSync } from 'fs'
 
 export class CertificateService {
     private static logger = getLogger('CertificateService');
-    public static async initchallenge(request: AutomatedCertificateRequest, csrRequest: CsrRequest) {
+
+    public static async initchallenge(
+        request: AutomatedCertificateRequest,
+        csrRequest: CsrRequest,
+        renewRequest = false
+    ) {
         const domainName = request.domainName;
         const log = this.logger.child({ domainName });
 
-        try {
-            await AutomatedCertificatesRepository.getCertificateByDomainName(domainName);
-            throw new Error("Domain name alerady registerd");
-        } catch (error) {
-            if (error instanceof CertificateNotFound) {
-                log.info("domain not registred lets continue")
+        if (!renewRequest) {
+            // If not autorenew request check if domain is already registered
+            try {
+                await AutomatedCertificatesRepository.getCertificateByDomainName(domainName);
+                throw new Error("Domain name already registerd");
+            } catch (error) {
+                if (error instanceof CertificateNotFound) {
+                    log.info("domain not registred lets continue")
+                }
             }
         }
 
@@ -39,15 +47,24 @@ export class CertificateService {
 
         log.debug(certResult.data);
 
-        // register new certificate
-        await AutomatedCertificatesRepository.registerAutomatedCertificate({
-            brandId: request.brandId,
-            domainName: request.domainName,
-            certificateHash: certResult.data.id,
-            csrMeta: JSON.stringify(csrRequest),
-            issuer: request.issuer,
-            domainType: request.domainType
-        })
+        if (!renewRequest) {
+            // if new registration
+            // register new certificate
+            await AutomatedCertificatesRepository.registerAutomatedCertificate({
+                brandId: request.brandId,
+                domainName: request.domainName,
+                certificateHash: certResult.data.id,
+                csrMeta: JSON.stringify(csrRequest),
+                issuer: request.issuer,
+                domainType: request.domainType
+            })
+        } else {
+            // update certificate hash
+            await AutomatedCertificatesRepository.updateCertificateHash(
+                request.domainName,
+                certResult.data.id
+            )
+        }
 
 
         const validationLink = certResult.data.validation.other_methods[domainName].file_validation_url_http;

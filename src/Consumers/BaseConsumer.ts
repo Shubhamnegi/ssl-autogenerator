@@ -23,7 +23,7 @@ export class BaseConsumer {
             };
             this.queueUrl = await AwsService.getQueueUrlByName(this.queueName);
         };
-        this.logger.debug("starting poll for " + this.queueUrl);
+        this.logger.info("starting poll for " + this.queueUrl);
         while (true) {
             try {
                 if (this.stop) {
