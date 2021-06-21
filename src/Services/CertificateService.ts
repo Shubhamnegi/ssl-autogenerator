@@ -30,6 +30,7 @@ export class CertificateService {
 
         if (!renewRequest) {
             // If not autorenew request check if domain is already registered
+            log.info('renew request recieved');
             try {
                 await AutomatedCertificatesRepository.getCertificateByDomainName(domainName);
                 throw new Error("Domain name already registerd");
@@ -60,6 +61,7 @@ export class CertificateService {
             })
         } else {
             // update certificate hash
+            log.info('updating certificate hash to ' + certResult.data.id)
             await AutomatedCertificatesRepository.updateCertificateHash(
                 request.domainName,
                 certResult.data.id
@@ -253,7 +255,7 @@ export class CertificateService {
         // );
     }
 
-    public static async getEligibleDomainsForRenewal() {
+    public static async initRenewal() {
         // Query database for domains with current date > expiry - 10 days
         // Push all the messages in queue for renewal with a delay of 10 min
         // use this cron only once in a day to remove conflicts
@@ -262,6 +264,8 @@ export class CertificateService {
 
 
         const result = await AutomatedCertificatesRepository.getExpiringCertificates()
+        log.info(result.length + " domains for renewal");
+
         for (const i of result) {
             log.debug("pushing message to " + delayedQueue);
             const delayedMessage = delayedQueueFormatter(i.certificateHash, NextActionEnum.RENEW_CERTITICATE)
@@ -283,7 +287,8 @@ export class CertificateService {
             domainType: cert.domainType,
             issuer: cert.issuer
         },
-            JSON.parse(cert.csrMeta as string) as CsrRequest
+            JSON.parse(cert.csrMeta as string) as CsrRequest,
+            true
         )
     }
 
